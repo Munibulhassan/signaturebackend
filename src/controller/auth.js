@@ -1,6 +1,7 @@
 const authentication = require("../models/auth");
 var bcrypt = require("bcryptjs");
 const { tokengenerate } = require("../middleware/auth");
+const subscription = require("../models/subscription");
 
 exports.register = async (req, res) => {
   try {
@@ -24,7 +25,12 @@ exports.register = async (req, res) => {
 
           var salt = bcrypt.genSaltSync(10);
           req.body.password = bcrypt.hashSync(req.body.password, salt);
-          req.body.sign = 3;
+          
+      req.body.subscription = await subscription.findOne({ name: "free" })._id;
+
+          req.body.sign = 0;
+          
+
           const Authentication = new authentication(req.body);
           Authentication.save().then((item) => {
             item.password = "";

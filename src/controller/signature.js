@@ -3,8 +3,6 @@ const signature = require("../models/signature");
 
 exports.signme = async (req, res) => {
   try {
-    console.log(req.user);
-
     req.body.status = req.params.status.toLowerCase();
     req.body.user = req.user._id;
     const { title } = req.body;

@@ -15,11 +15,26 @@ const router =()=>{
       });
     Router.post("/login", auth.login);
   Router.post("/register", auth.register);
+  
   Router.get(
     "/google",
     passport.authenticate("google", { scope: [ "email","profile"] })
   );
 
+  Router.get(
+    "/google/callback",
+    passport.authenticate("google", {
+      failureRedirect: "/error",
+      successRedirect: "/success",
+      session:false
+    })    
+  );
+  Router.get("/success",(req,res)=>{
+    res.send("Valid User")
+  })
+  Router.get("/error",(req,res)=>{
+    res.send("Invalid User")
+  })
     return Router
 }
 module.exports = router();

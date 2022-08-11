@@ -3,7 +3,8 @@ const Router = express.Router()
 const signature = require("../../controller/signature.js")
 const multer = require("multer");
 const path = require("path");
-const {  verifytoken } = require("../../middleware/auth.js");
+const { verifytoken } = require("../../middleware/auth.js");
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "src/uploads/signature/");
