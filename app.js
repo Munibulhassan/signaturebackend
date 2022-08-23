@@ -110,7 +110,7 @@ app.get("/success", (req, res) => res.send("You are a valid user"));
 app.get("/error", (req, res) => res.send("error logging in"))
 app.use("/uploads", express.static("uploads"));
 
-const url = 8080;
+const url = process.env.PORT | 8080;
 app.listen(url, () => {
   console.log("Server is Running on port " + url);
 });
