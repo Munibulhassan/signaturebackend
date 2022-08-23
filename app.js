@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 require("dotenv").config();
 app.use(bodyParser.json());
 const mongoose = require("mongoose");
+
 const URL = process.env.URL;
 mongoose.connect(
   URL,
@@ -18,13 +19,13 @@ mongoose.connect(
     }
   }
 );
-
 const cors = require("cors");
 app.use(
   cors({
     origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type"],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   })
 );
 
@@ -34,15 +35,16 @@ app.use(function (req, res, next) {
     "Access-Control-Allow-Methods",
     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
   );
-  res.setHeader("Access-Control-Allow-Credentials", true);
-  res.header(
+  res.setHeader(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization,authorization"
+    "X-Requested-With,content-type"
   );
+  res.setHeader("Access-Control-Allow-Credentials", true);
   next();
 });
 
 const route = require("./src/routes/routes");
+
 //Routing
 app.use("/api", route);
 
@@ -104,21 +106,11 @@ passport.use(
 ///
 
 app.set("view engine", "ejs");
-
 app.get("/success", (req, res) => res.send("You are a valid user"));
-app.get("/error", (req, res) => res.send("error logging in"));
-
-///
-
+app.get("/error", (req, res) => res.send("error logging in"))
 app.use("/uploads", express.static("uploads"));
-// app.use("/image/:image", (req,res)=>{
-// const readstream = getFileStream(req.params.image);
-// readstream.pipe(res);
 
-// });
-///
-///
-const url = process.env.PORT || 6000;
+const url = 8080;
 app.listen(url, () => {
-  console.log("Server is Running on port " + 6000);
+  console.log("Server is Running on port " + url);
 });
