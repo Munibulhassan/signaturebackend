@@ -1,11 +1,13 @@
 const team = require("../models/team");
 const fs = require("fs");
 const { promisify } = require("util");
-const { Console } = require("console");
+
 const unlinkAsync = promisify(fs.unlink);
 
 exports.createteam = async (req, res) => {
   try {
+    
+
     req.body.owner = req.user._id;
     const { owner, member } = req.body;
     req.body.viewer = JSON.parse(req.body.viewer);
@@ -28,7 +30,7 @@ exports.createteam = async (req, res) => {
       const Team = new team(req.body);
       Team.save().then((item) => {
         res.status(200).send({
-          success: false,
+          success: true,
           message: "Team successfully made",
           data: item,
         });
@@ -51,7 +53,7 @@ exports.getteam = async (req, res) => {
         .send({ message: "There is no any plan available", success: false });
     } else {
       res.status(200).send({
-        message: "Subscription plane Successfully fetch ",
+        message: "Teams data get successfully",
         success: true,
         data: data,
       });
@@ -75,23 +77,27 @@ exports.updateteam = async (req, res) => {
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-          req.body.prevfile= JSON.parse(req.body.prevfile);
-          console.log(result)
-          if (req.files) {
-            req.body.prevfile?.map(async (item) => {
-              delete result.file[result.file.indexOf(item)];
-              await unlinkAsync(`uploads/team/` + item);
-            });
-            req.files.map((item) => {
-              if (item.mimetype.split("/")[0] == "image") {
-                result.logo = item.filename;
-              } else {
-                result.file.push(item.filename);
-              }
-            });
+          if (req.body?.prevfile) {
+            req.body.prevfile = JSON.parse(req.body.prevfile);
           }
 
-          team.updateOne({ _id: id }, result, (err, value) => {
+          if (req.files) {
+            const file = [];
+            req.files.map((item) => {
+              if (item.mimetype.split("/")[0] == "image") {
+                req.body.logo = item.filename;
+              } else {
+                file.push(item.filename);
+              }
+            });
+            if(file.length>0){
+              req.body.file = file
+            }
+
+            
+          }
+
+          team.updateOne({ _id: id }, req.body, (err, value) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });
             } else {

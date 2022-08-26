@@ -5,8 +5,11 @@ const team = mongoose.Schema(
     
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
     member : [],
-    file : [],    
+    file : [],
+    logo:String,
+
     viewer:[],
+    name:String,
     logo:String
   },
   { timestamps: true }
