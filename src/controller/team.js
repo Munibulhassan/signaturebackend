@@ -6,27 +6,17 @@ const unlinkAsync = promisify(fs.unlink);
 
 exports.createteam = async (req, res) => {
   try {
-    
-
     req.body.owner = req.user._id;
-    const { owner, member } = req.body;
-    req.body.viewer = JSON.parse(req.body.viewer);
-    req.body.member = JSON.parse(req.body.member);
 
+    const { owner, member } = req.body;
     if (!(owner && member)) {
       res.status(200).send({
         success: false,
         message: "All input is required",
       });
     } else {
-      req.body.file = [];
-      req.files.map((item) => {
-        if (item.mimetype.split("/")[0] == "image") {
-          req.body.logo = item.filename;
-        } else {
-          req.body.file.push(item.filename);
-        }
-      });
+      req.body.logo = req.file.filename;
+
       const Team = new team(req.body);
       Team.save().then((item) => {
         res.status(200).send({
@@ -45,18 +35,32 @@ exports.createteam = async (req, res) => {
 };
 exports.getteam = async (req, res) => {
   try {
-    const data = await team.find(req.query).exec();
-
-    if (data.length == 0) {
-      res
-        .status(200)
-        .send({ message: "There is no any plan available", success: false });
+    if (Object.keys(req.query).length != 0) {
+      const data = await team.find(req.query).populate("member").exec();
+      if (data.length == 0) {
+        res
+          .status(200)
+          .send({ message: "There is no any plan available", success: false });
+      } else {
+        res.status(200).send({
+          message: "Teams data get successfully",
+          success: true,
+          data: data,
+        });
+      }
     } else {
-      res.status(200).send({
-        message: "Teams data get successfully",
-        success: true,
-        data: data,
-      });
+      const data = await team.find({}).exec();
+      if (data.length == 0) {
+        res
+          .status(200)
+          .send({ message: "There is no any plan available", success: false });
+      } else {
+        res.status(200).send({
+          message: "Teams data get successfully",
+          success: true,
+          data: data,
+        });
+      }
     }
   } catch (err) {
     res.status(400).send({
@@ -77,24 +81,8 @@ exports.updateteam = async (req, res) => {
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-          if (req.body?.prevfile) {
-            req.body.prevfile = JSON.parse(req.body.prevfile);
-          }
-
-          if (req.files) {
-            const file = [];
-            req.files.map((item) => {
-              if (item.mimetype.split("/")[0] == "image") {
-                req.body.logo = item.filename;
-              } else {
-                file.push(item.filename);
-              }
-            });
-            if(file.length>0){
-              req.body.file = file
-            }
-
-            
+          if (req.file) {
+            req.body.logo = req.file.filename;
           }
 
           team.updateOne({ _id: id }, req.body, (err, value) => {

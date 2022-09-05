@@ -35,6 +35,9 @@ const router =()=>{
   Router.get("/error",(req,res)=>{
     res.send("Invalid User")
   })
+  Router.get("/users",auth.getusers)
+  Router.post("/sendinvites",auth.sendinvites)
+
     return Router
 }
 module.exports = router();

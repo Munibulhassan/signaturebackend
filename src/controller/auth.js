@@ -2,6 +2,8 @@ const authentication = require("../models/auth");
 var bcrypt = require("bcryptjs");
 const { tokengenerate } = require("../middleware/auth");
 const subscription = require("../models/subscription");
+const { isBuffer } = require("util");
+const e = require("express");
 
 exports.register = async (req, res) => {
   try {
@@ -15,21 +17,20 @@ exports.register = async (req, res) => {
       res.status(422).send({ message: "invlaid Email", success: false });
     } else {
       authentication.findOne({ email: email }, async (err, data) => {
-        if(data){
+        if (data) {
           res.status(200).send({
             message: "User already exist with same email address",
-            
+
             success: false,
           });
-        }else{
-
+        } else {
           var salt = bcrypt.genSaltSync(10);
           req.body.password = bcrypt.hashSync(req.body.password, salt);
-          
-      req.body.subscription = await subscription.findOne({ name: "free" })._id;
+
+          req.body.subscription = await subscription.findOne({ name: "free" })
+            ._id;
 
           req.body.sign = 0;
-          
 
           const Authentication = new authentication(req.body);
           Authentication.save().then((item) => {
@@ -82,6 +83,108 @@ exports.login = async (req, res) => {
         }
       }
     });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+exports.getusers = (req, res) => {
+  try {
+    if (req.query) {
+      authentication.find(req.query, { password: 0 }, (err, result) => {
+        if (err) {
+          res.status(200).json({
+            success: false,
+            message: "Error occured!",
+          });
+        } else {
+          if (result.length == 0) {
+            res.status(200).json({
+              success: false,
+              message: "No user are found",
+            });
+          } else {
+            res.status(200).json({
+              success: true,
+              message: "User get successfully",
+              data: result,
+            });
+          }
+        }
+      });
+    } else {
+      authentication.find({}, { password: 0 }, (err, result) => {
+      
+        if (err) {
+          res.status(200).json({
+            success: false,
+            message: "Error occured!",
+          });
+        } else {
+          if (result.length == 0) {
+            res.status(200).json({
+              success: false,
+              message: "No user are found",
+            });
+          } else {
+            res.status(200).json({
+              success: true,
+              message: "User get successfully",
+              data: result,
+            });
+          }
+        }
+      });
+    }
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+const nodemailer = require("nodemailer");
+
+exports.sendinvites =async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (email || email.length > 0) {
+      req.body.email.map(async (item, index) => {
+        let testAccount = await nodemailer.createTestAccount();
+        
+        let transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: "mmmmkhatri123@gmail.com", // generated ethereal user
+            pass: "03142059628", // generated ethereal password
+          },
+        });
+        let info = await transporter.sendMail({
+          from:  "mmmmkhatri123@gmail.com", // sender address
+          to: {item}, // list of receivers
+          subject: "Hello ✔", // Subject line
+          text: "Hello world?", // plain text body
+          html: "<b>Hello world?</b>", // html body
+        });
+        
+        if(index==email.length-1){
+          res.status(200).json({
+            success: true,
+            message: "Invitation send to given email address",
+          });  
+        }
+      });
+    } else {
+      res.status(200).json({
+        success: false,
+        message: "No emails provided",
+      });
+    }
   } catch (err) {
     res.status(400).json({
       success: false,

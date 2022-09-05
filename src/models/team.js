@@ -4,11 +4,8 @@ const team = mongoose.Schema(
   {
     
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
-    member : [],
-    file : [],
-    logo:String,
+    member : [{type: mongoose.Schema.Types.ObjectId, ref: "users" }],
 
-    viewer:[],
     name:String,
     logo:String
   },
