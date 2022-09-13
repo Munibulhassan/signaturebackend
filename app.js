@@ -112,7 +112,7 @@ app.get("/error", (req, res) => res.send("error logging in"));
 // app.use(express.static("uploads"));
 var fs = require("fs");
 app.get("/image/:folder/:image", (req, res) => {
-console.log(req.params)
+
   fs.readFile("src/uploads/"+req.params.folder+"/"+req.params.image, function (err, data) {
     if (err) throw err; // Fail if the file can't be read.
     res.writeHead(200, { "Content-Type": "image/jpeg" });

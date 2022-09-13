@@ -160,12 +160,12 @@ exports.sendinvites =async (req, res) => {
           port: 465,
           secure: true,
           auth: {
-            user: "mmmmkhatri123@gmail.com", // generated ethereal user
-            pass: "03142059628", // generated ethereal password
+            user: "oipdummy@gmail.com", // generated ethereal user
+            pass: "rimgrsvekbsqgman", // generated ethereal password
           },
         });
         let info = await transporter.sendMail({
-          from:  "mmmmkhatri123@gmail.com", // sender address
+          from:  "oipdummy@gmail.com", // sender address
           to: {item}, // list of receivers
           subject: "Hello ✔", // Subject line
           text: "Hello world?", // plain text body
