@@ -4,10 +4,13 @@ exports.createdocuments = async (req, res) => {
   try {
     req.body.createdby = req.user._id;
     req.body.document = req.file.filename;
-    req.body.name = req.file.filename;
+    
 
     if (req.body.signedby) {
       req.body.signedby = JSON.parse(req.body.signedby);
+    }
+    if (req.body.viwedby) {
+      req.body.viwedby = JSON.parse(req.body.viwedby);
     }
     const Documents = new documents(req.body);
     Documents.save().then((item) => {
@@ -26,9 +29,9 @@ exports.createdocuments = async (req, res) => {
 };
 exports.getdocuments = async (req, res) => {
   try {
+
     Object.assign(req.query, { createdby: req.user._id });
     const data = await documents.find(req.query).exec();
-
     if (data.length == 0) {
       res
         .status(200)
