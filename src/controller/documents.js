@@ -3,15 +3,7 @@ const documents = require("../models/document");
 exports.createdocuments = async (req, res) => {
   try {
     req.body.createdby = req.user._id;
-    req.body.document = req.file.filename;
     
-
-    if (req.body.signedby) {
-      req.body.signedby = JSON.parse(req.body.signedby);
-    }
-    if (req.body.viwedby) {
-      req.body.viwedby = JSON.parse(req.body.viwedby);
-    }
     const Documents = new documents(req.body);
     Documents.save().then((item) => {
       res.status(200).send({
@@ -77,6 +69,9 @@ exports.updatedocuments = async (req, res) => {
           if (result.createdby == req.user._id) {
             if (req.body.status) {
               req.body.status = req.body.status.toUpperCase();
+            }
+            if(req.file){
+              req.file.document = req.file.filename
             }
             documents.updateOne({ _id: id }, req.body, (err, result) => {
               if (err) {
