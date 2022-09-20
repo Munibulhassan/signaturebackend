@@ -3,6 +3,9 @@ const app = express();
 const bodyParser = require("body-parser");
 require("dotenv").config();
 app.use(bodyParser.json());
+app.use(express.json());
+
+
 const mongoose = require("mongoose");
 
 const URL = process.env.URL;
@@ -111,6 +114,7 @@ app.get("/error", (req, res) => res.send("error logging in"));
 
 // app.use(express.static("uploads"));
 var fs = require("fs");
+
 app.get("/image/:folder/:image", (req, res) => {
 
   fs.readFile("src/uploads/"+req.params.folder+"/"+req.params.image, function (err, data) {

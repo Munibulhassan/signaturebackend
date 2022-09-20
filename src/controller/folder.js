@@ -10,14 +10,26 @@ exports.createfolder = async (req, res) => {
       if (req.body.document) {
         req.body.document = JSON.parse(req.body.document);
       }
-      const Folder = new folder(req.body);
-      Folder.save().then((item) => {
-        res.status(200).send({
-          success: false,
-          message: "folder successfully save",
-          data: item,
-        });
-      });
+      folder.findOne(
+        { name: req.body.name, createdby: req.user._id },
+        (err, result) => {
+          if (result) {
+            res.status(200).send({
+              success: false,
+              message: "folder with same name exist use another name",
+            });
+          } else {
+            const Folder = new folder(req.body);
+            Folder.save().then((item) => {
+              res.status(200).send({
+                success: true,
+                message: "folder successfully save",
+                data: item,
+              });
+            });
+          }
+        }
+      );
     }
   } catch (err) {
     res.status(400).send({
@@ -26,6 +38,7 @@ exports.createfolder = async (req, res) => {
     });
   }
 };
+
 exports.getfolder = async (req, res) => {
   try {
     Object.assign(req.query, { createdby: req.user._id });
@@ -49,10 +62,10 @@ exports.getfolder = async (req, res) => {
     });
   }
 };
+
 exports.updatefolder = async (req, res) => {
   try {
     const { id } = req.params;
-
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
@@ -91,18 +104,15 @@ exports.updatefolder = async (req, res) => {
     });
   }
 };
+
 exports.deletefolder = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       folder.findOne({ _id: id }, async (err, result) => {
-    
-    
-
-    
         if (result) {
           if (result.createdby == req.user._id) {
             folder.deleteOne({ _id: id }, (err, val) => {
@@ -123,6 +133,40 @@ exports.deletefolder = async (req, res) => {
           }
         } else {
           res.status(200).send({ message: "Data Not exist", success: false });
+        }
+      });
+    }
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+exports.adddocinfolder = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      res.status(200).send({ message: "id is not specify", success: false });
+    } else {
+      folder.findOne({ _id: id }, async (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: "No Data Exist", success: false });
+        } else {
+          result.document.push(req.body.document);
+
+          folder.updateOne({ _id: id }, result, (err, result) => {
+            if (err) {
+              res.status(200).send({ message: err.message, success: false });
+            } else {
+              res.status(200).send({
+                message: "Data updated Successfully",
+                success: true,
+                data: result,
+              });
+            }
+          });
         }
       });
     }

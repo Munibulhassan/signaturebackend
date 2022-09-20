@@ -7,9 +7,9 @@ const e = require("express");
 
 exports.register = async (req, res) => {
   try {
-    const { first_name, email, password } = req.body;
+    const { first_name, email, password,profile } = req.body;
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (!(first_name && email && password)) {
+    if (!(first_name && email && password && profile)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
@@ -20,7 +20,6 @@ exports.register = async (req, res) => {
         if (data) {
           res.status(200).send({
             message: "User already exist with same email address",
-
             success: false,
           });
         } else {
@@ -185,6 +184,20 @@ exports.sendinvites =async (req, res) => {
         message: "No emails provided",
       });
     }
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+exports.fileupload = async (req, res) => {
+  try {
+    res.status(200).send({
+      success:true,
+      profile:req.file.filename
+    })
   } catch (err) {
     res.status(400).json({
       success: false,

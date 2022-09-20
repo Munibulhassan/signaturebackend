@@ -2,12 +2,14 @@ const documents = require("../models/document");
 
 exports.createdocuments = async (req, res) => {
   try {
-    req.body.createdby = req.user._id;
-    
+    if(req.files){
+      req.body.file=req.file.filename
+    }
+    req.body.createdby = req.user._id;    
     const Documents = new documents(req.body);
     Documents.save().then((item) => {
       res.status(200).send({
-        success: false,
+        success: true,
         message: "Documents successfully save",
         data: item,
       });
@@ -19,16 +21,18 @@ exports.createdocuments = async (req, res) => {
     });
   }
 };
+
 exports.getdocuments = async (req, res) => {
   try {
-
     Object.assign(req.query, { createdby: req.user._id });
     const data = await documents.find(req.query).exec();
     if (data.length == 0) {
       res
         .status(200)
-        .send({ message: "There is no any plan available", success: false });
+        .send({ message: "There is no documents available", success: false });
     } else {
+      
+
       var filterdata = [];
       if (req.body.signer) {
         data.map((item) => {
@@ -55,6 +59,20 @@ exports.getdocuments = async (req, res) => {
     });
   }
 };
+
+exports.fileupload = async (req,res)=>{
+  try{
+    res.status(200).json({
+      success: true,
+      file: req.file.filename,      
+    });
+  }catch(err){
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+}
 exports.updatedocuments = async (req, res) => {
   try {
     const { id } = req.params;

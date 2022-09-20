@@ -8,6 +8,5 @@ const document = mongoose.Schema({
     signedby:[],
     viewedby:[],
     folder: { type: mongoose.Schema.Types.ObjectId, ref: "folder" },
-
 }, { timestamps: true });
 module.exports = mongoose.model("document", document);

@@ -18,11 +18,12 @@ const storage = multer.diskStorage({
 });
 var upload = multer({ storage: storage }); 
 const router = () => {
+
+    Router.post("/",upload.single('file'),documents.fileupload)
     Router.post("/",verifytoken,documents.createdocuments)
     Router.get("/",verifytoken,documents.getdocuments)
     Router.patch("/:id",verifytoken,upload.single("file"),documents.updatedocuments)
     Router.delete("/:id",verifytoken,documents.deletedocuments)
-
   return Router;
 };
 module.exports = router();

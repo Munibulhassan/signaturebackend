@@ -1,13 +1,14 @@
 const mongoose = require("mongoose");
 const signature = mongoose.Schema(
   {
-    status: { type: String, enum: ["me", "team", "bulk"] },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+    type: { type: String, enum: ["me", "team", "bulk"] },    
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+    status:{type:String,enum:["DRAFT","COMPLETED","AWAITINg","RECEIVED"], default:"DRAFT"},
     title:{type:String},
-    Viewer:{type:String},
-    message:{type:String},
+    viewer:[{name:String,email:String}],
+    description:{type:String},
     file:{type:[]},
-    signer:{type:[]},
+    signer:[{name:String,email:String}],
   },
 
   { timestamps: true }

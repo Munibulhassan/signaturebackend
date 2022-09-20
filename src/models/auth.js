@@ -10,7 +10,7 @@ const auth = mongoose.Schema(
       enum: ["admin", "superadmin", "user"],
     },
     subscription:{type: String},
-    
+    profile:String,
     sign:{type:Number}
 
   },
