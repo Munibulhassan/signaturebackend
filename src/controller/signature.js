@@ -80,32 +80,9 @@ exports.getsignature = async (req, res) => {
     );
 
     const { title, ...query } = req.query;
-    
-    if (query) {
 
-
-      const data = await signature.find(query).populate("owner").exec();
-
-      if (data.length == 0) {
-        res.status(200).send({
-          message: "There is no any signature available",
-          success: false,
-        });
-      } else {
-        if (title?.length > 0) {
-          data = data.filter((item) => {
-            return item.title.search(title) != -1;
-          });
-        }
-        res.status(200).send({
-          message: "All Signature fetch",
-          success: true,
-          data: data,
-        });
-      }
-    } else {
-      
-      const data = await signature.find({}).populate("owner").exec();
+    if (Object.keys(query).length > 0) {
+      let data = await signature.find(query).populate("owner").exec();
 
       if (data.length == 0) {
         res.status(200).send({
@@ -114,11 +91,33 @@ exports.getsignature = async (req, res) => {
         });
       } else {
         
-        if (title.length > 0) {
+        if (title?.length > 0) {
           data = data.filter((item) => {
             return item.title.search(title) != -1;
           });
-          
+        }
+
+        res.status(200).send({
+          message: "All Signature fetch",
+          success: true,
+          data: data,
+        });
+      }
+    } else {
+      let data = await signature.find({}).populate("owner").exec();
+
+      if (data.length == 0) {
+        res.status(200).send({
+          message: "There is no any signature available",
+          success: false,
+        });
+      } else {
+        
+
+        if (title?.length > 0) {
+          data = data.filter((item) => {
+            return item.title.search(title) != -1;
+          });
         }
         res.status(200).send({
           message: "All Signature fetch",
@@ -134,3 +133,81 @@ exports.getsignature = async (req, res) => {
     });
   }
 };
+exports.updatesignature = async (req,res)=>{
+  try{
+    const { id } = req.params;
+    if (!id) {
+      res.status(200).send({ message: "id is not specify", success: false });
+    } else {
+      signature.findOne({ _id: id }, async (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: "No Data Exist", success: false });
+        } else {
+          if (result.owner == req.user._id) {
+           
+            signature.updateOne({ _id: id }, req.body, (err, result) => {
+              if (err) {
+                res.status(200).send({ message: err.message, success: false });
+              } else {
+                res.status(200).send({
+                  message: "Data updated Successfully",
+                  success: true,
+                  data: result,
+                });
+              }
+            });
+          } else {
+            res.status(200).send({
+              message: "You have no permission for update the Signature",
+              success: false,
+            });
+          }
+        }
+      });
+    }
+  }catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+}
+exports.deletesignature = async (req,res)=>{
+  try{
+    const { id } = req.params;
+    if (!id) {
+      res.status(200).send({ message: "id is not specify", success: false });
+    } else {
+      signature.findOne({ _id: id }, async (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: "No Data Exist", success: false });
+        } else {
+          if (result.owner == req.user._id) {
+           
+            signature.deleteOne({ _id: id }, (err, result) => {
+              if (err) {
+                res.status(200).send({ message: err.message, success: false });
+              } else {
+                res.status(200).send({
+                  message: "Signature Deleted Successfully",
+                  success: true,
+                  data: result,
+                });
+              }
+            });
+          } else {
+            res.status(200).send({
+              message: "You have no permission for Delete the Signature",
+              success: false,
+            });
+          }
+        }
+      });
+    }
+  }catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+}
