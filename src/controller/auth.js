@@ -7,7 +7,7 @@ const e = require("express");
 
 exports.register = async (req, res) => {
   try {
-    const { first_name, email, password,profile } = req.body;
+    const { first_name, email, password, profile } = req.body;
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (!(first_name && email && password && profile)) {
       res
@@ -33,7 +33,7 @@ exports.register = async (req, res) => {
 
           const Authentication = new authentication(req.body);
           Authentication.save().then((item) => {
-            item.password = "";
+            
             res.status(200).send({
               message: "Data save into Database",
               data: item,
@@ -66,11 +66,11 @@ exports.login = async (req, res) => {
       } else {
         if (!result.password) {
           res.status(200).send({
-            message: "first register yourseld",
+            message: "first register yourself",
             success: false,
           });
         } else if (bcrypt.compareSync(password, result.password)) {
-          result.password = "";
+          
           res.status(200).send({
             message: "Login Successfull",
             success: true,
@@ -116,7 +116,6 @@ exports.getusers = (req, res) => {
       });
     } else {
       authentication.find({}, { password: 0 }, (err, result) => {
-      
         if (err) {
           res.status(200).json({
             success: false,
@@ -146,16 +145,17 @@ exports.getusers = (req, res) => {
   }
 };
 const nodemailer = require("nodemailer");
+const auth = require("../models/auth");
 
-exports.sendinvites =async (req, res) => {
+exports.sendinvites = async (req, res) => {
   try {
     const { email } = req.body;
     if (email || email.length > 0) {
       req.body.email.map(async (item, index) => {
         let testAccount = await nodemailer.createTestAccount();
-        
+
         let transporter = nodemailer.createTransport({
-          host: 'smtp.gmail.com',
+          host: "smtp.gmail.com",
           port: 465,
           secure: true,
           auth: {
@@ -164,18 +164,18 @@ exports.sendinvites =async (req, res) => {
           },
         });
         let info = await transporter.sendMail({
-          from:  "oipdummy@gmail.com", // sender address
-          to: {item}, // list of receivers
+          from: "oipdummy@gmail.com", // sender address
+          to: { item }, // list of receivers
           subject: "Hello ✔", // Subject line
           text: "Hello world?", // plain text body
           html: "<b>Hello world?</b>", // html body
         });
-        
-        if(index==email.length-1){
+
+        if (index == email.length - 1) {
           res.status(200).json({
             success: true,
             message: "Invitation send to given email address",
-          });  
+          });
         }
       });
     } else {
@@ -195,9 +195,99 @@ exports.sendinvites =async (req, res) => {
 exports.fileupload = async (req, res) => {
   try {
     res.status(200).send({
-      success:true,
-      profile:req.file.filename
-    })
+      success: true,
+      profile: req.file.filename,
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+exports.updateprofile = async (req, res) => {
+  try {
+    
+    if (!req.user._id) {
+      res
+        .status(200)
+        .send({ message: "All input is required", success: false });
+    } else {
+      authentication.updateOne(
+        { _id: req.user._id },
+        req.body,
+        async (err, result) => {
+          if (err) {
+            res.status(200).send({
+              message: "Error Occured in update data",
+              success: false,
+            });
+          } else {
+            res.status(200).send({
+              message: "Profile Updated Successfully",
+              success: true,
+              data: await authentication.findOne({ _id: req.user._id }),
+            });
+          }
+        }
+      );
+    }
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+exports.updatepassword = async (req, res) => {
+  try {
+    if (!req.user._id) {
+      res
+        .status(200)
+        .send({ message: "All input is required", success: false });
+    } else {
+      const { password, newpassword, confirmpassword } = req.body;
+
+      const data = await authentication.findOne({ _id: req.user._id });
+      if (newpassword == confirmpassword) {
+        
+
+        if (bcrypt.compareSync(password, data.password)) {
+          var salt = bcrypt.genSaltSync(10);
+
+          authentication.updateOne(
+            { _id: req.user._id },
+            { password: bcrypt.hashSync(newpassword, salt) },
+            async (err, result) => {
+              if (err) {
+                res.status(200).send({
+                  message: "Error Occured in update data",
+                  success: false,
+                });
+              } else {
+                res.status(200).send({
+                  message: "Profile Updated Successfully",
+                  success: true,
+                  data: await authentication.findOne({ _id: req.user._id }),
+                });
+              }
+            }
+          );
+        } else {
+          res.status(200).send({
+            message: "Previous password is incorrect",
+            success: false,
+          });
+        }
+      } else {
+        res.status(200).send({
+          message: "New and Confirm password must be same",
+          success: false,
+        });
+      }
+    }
   } catch (err) {
     res.status(400).json({
       success: false,

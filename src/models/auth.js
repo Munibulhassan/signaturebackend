@@ -9,7 +9,9 @@ const auth = mongoose.Schema(
       type: String,
       enum: ["admin", "superadmin", "user"],
     },
-    subscription:{type: String},
+    subscription:[{type: mongoose.Schema.Types.ObjectId, ref: "subscription"}],
+
+    
     profile:String,
     sign:{type:Number}
 

@@ -4,7 +4,7 @@ const document = mongoose.Schema({
     title:String,
     description:String,
     status:{type:String,enum:["DRAFT","COMPLETED","AWAITINg","RECEIVED"], default:"DRAFT"},
-    createdby: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
     signedby:[],
     viewedby:[],
     folder: { type: mongoose.Schema.Types.ObjectId, ref: "folder" },

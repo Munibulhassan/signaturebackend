@@ -115,6 +115,15 @@ app.get("/error", (req, res) => res.send("error logging in"));
 // app.use(express.static("uploads"));
 var fs = require("fs");
 
+// app.use(express.static('public')); 
+// app.use('/users', express.static('uploads/users'));
+// app.use('/documents', express.static('uploads/documents'));
+// app.use('/team', express.static('uploads/team'));
+// app.use('/signature', express.static('uploads/signature'));
+
+
+
+
 app.get("/image/:folder/:image", (req, res) => {
 
   fs.readFile("src/uploads/"+req.params.folder+"/"+req.params.image, function (err, data) {
@@ -123,6 +132,7 @@ app.get("/image/:folder/:image", (req, res) => {
     res.end(data); // Send the file data to the browser.
   });
 });
+
 
 const url = process.env.PORT || 8080;
 app.listen(url, () => {

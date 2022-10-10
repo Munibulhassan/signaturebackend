@@ -2,10 +2,11 @@ const documents = require("../models/document");
 
 exports.createdocuments = async (req, res) => {
   try {
-    if(req.files){
-      req.body.file=req.file.filename
-    }
-    req.body.createdby = req.user._id;    
+
+    
+
+    
+    req.body.owner = req.user._id;    
     const Documents = new documents(req.body);
     Documents.save().then((item) => {
       res.status(200).send({
@@ -15,6 +16,7 @@ exports.createdocuments = async (req, res) => {
       });
     });
   } catch (err) {
+    
     res.status(400).send({
       success: false,
       message: err.message,
@@ -24,8 +26,17 @@ exports.createdocuments = async (req, res) => {
 
 exports.getdocuments = async (req, res) => {
   try {
-    Object.assign(req.query, { createdby: req.user._id });
-    const data = await documents.find(req.query).exec();
+    req.query = Object.fromEntries(
+      Object.entries(req.query).filter(
+        ([_, v]) => v != "" && v != " " && v != "null"
+      )
+    );
+
+    const { title, ...query } = req.query;
+
+    // Object.assign(req.query, { createdby: req.user._id });
+
+    const data = await documents.find(query).populate("owner").exec();
     if (data.length == 0) {
       res
         .status(200)
@@ -33,23 +44,28 @@ exports.getdocuments = async (req, res) => {
     } else {
       
 
-      var filterdata = [];
-      if (req.body.signer) {
-        data.map((item) => {
-          for (var i = 0; i < item?.signedby.length; i++) {
-            if (item.signedby[i].email == req.body.signer) {
-              filterdata.push(item);
-              break;
-            }
-          }
+      // var filterdata = [];
+      // if (req.body.signer) {
+      //   data.map((item) => {
+      //     for (var i = 0; i < item?.signedby.length; i++) {
+      //       if (item.signedby[i].email == req.body.signer) {
+      //         filterdata.push(item);
+      //         break;
+      //       }
+      //     }
+      //   });
+      // } else {
+      //   filterdata = data;
+      // }
+      if (title?.length > 0) {
+        data = data.filter((item) => {
+          return item.title.search(title) != -1;
         });
-      } else {
-        filterdata = data;
       }
       res.status(200).send({
         message: "All documents fetch ",
         success: true,
-        data: filterdata,
+        data: data,
       });
     }
   } catch (err) {
@@ -62,6 +78,7 @@ exports.getdocuments = async (req, res) => {
 
 exports.fileupload = async (req,res)=>{
   try{
+    
     res.status(200).json({
       success: true,
       file: req.file.filename,      

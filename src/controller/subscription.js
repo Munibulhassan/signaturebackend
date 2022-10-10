@@ -3,7 +3,7 @@ const authentication = require("../models/auth");
 exports.subscribed = async (req, res) => {
   try {
     const { subscription } = req.body;
-
+    
     if (!subscription) {
       res
         .status(200)
@@ -14,7 +14,7 @@ exports.subscribed = async (req, res) => {
         .populate({ path: "subscription" })
         .exec();
 
-      if (user?.subscription?._id == subscription) {
+      if (user?.subscription[0]?._id == subscription) {
         res.status(200).send({
           message: "You already subscribed this package",
           success: false,
@@ -24,7 +24,7 @@ exports.subscribed = async (req, res) => {
 
         res
           .status(200)
-          .send({ message: "Subscription Plan is subsribed", success: false });
+          .send({ message: "Subscription Plan is subsribed", success: true });
       }
     }
   } catch (err) {
