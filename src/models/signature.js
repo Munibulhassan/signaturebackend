@@ -9,6 +9,8 @@ const signature = mongoose.Schema(
     description:{type:String},
     file:{type:[]},
     signer:[{name:String,email:String}],
+    folder: { type: mongoose.Schema.Types.ObjectId, ref: "folder" },
+
   },
 
   { timestamps: true }
