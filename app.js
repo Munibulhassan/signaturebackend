@@ -5,7 +5,6 @@ require("dotenv").config();
 app.use(bodyParser.json());
 app.use(express.json());
 
-
 const mongoose = require("mongoose");
 
 const URL = process.env.URL;
@@ -115,27 +114,28 @@ app.get("/error", (req, res) => res.send("error logging in"));
 // app.use(express.static("uploads"));
 var fs = require("fs");
 
-// app.use(express.static('public')); 
+// app.use(express.static('public'));
 // app.use('/users', express.static('uploads/users'));
 // app.use('/documents', express.static('uploads/documents'));
 // app.use('/team', express.static('uploads/team'));
 // app.use('/signature', express.static('uploads/signature'));
 
-
-
-
 app.get("/image/:folder/:image", (req, res) => {
-
-  fs.readFile("src/uploads/"+req.params.folder+"/"+req.params.image, function (err, data) {
-    if (err) throw err; // Fail if the file can't be read.
-    res.writeHead(200, { "Content-Type": "image/jpeg" });
-    res.end(data); // Send the file data to the browser.
-  });
+  try {
+    fs.readFile(
+      "src/uploads/" + req.params.folder + "/" + req.params.image,
+      function (err, data) {
+        if (err) throw err; // Fail if the file can't be read. 
+        res.writeHead(200, { "Content-Type": "image/jpeg" });
+        res.end(data); // Send the file data to the browser.
+      }
+    );
+  } catch (err) {
+    res.send(err);
+  }
 });
-
 
 const url = process.env.PORT || 8080;
 app.listen(url, () => {
   console.log("Server is Running on port " + url);
 });
- 

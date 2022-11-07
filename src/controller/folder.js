@@ -47,7 +47,7 @@ exports.getfolder = async (req, res) => {
     if (data.length == 0) {
       res
         .status(200)
-        .send({ message: "There is no any plan available", success: false });
+        .send({ message: "There is no any folder available", success: false });
     } else {
       res.status(200).send({
         message: "All folder fetch ",

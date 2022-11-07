@@ -9,7 +9,7 @@ exports.register = async (req, res) => {
   try {
     const { first_name, email, password, profile } = req.body;
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (!(first_name && email && password && profile)) {
+    if (!(first_name && email && password )) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
