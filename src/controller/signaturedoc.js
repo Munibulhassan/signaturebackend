@@ -1,33 +1,60 @@
-const { default: axios } = require("axios");
+const pd_api = require("pandadoc-node-client");
+
+const axios = require("axios");
 const authentication = require("../models/auth");
 const signaturedoc = require("../models/signaturedoc");
+
+const API_KEY = process.env.API_KEY;
+const configuration = pd_api.createConfiguration({
+  authMethods: { apiKey: `API-Key ${API_KEY}` },
+});
+
+
+// apiInstance
+//   .listTemplates({ deleted: false, tag: ["doe-inc-proposals"] })
+//   .then((data) => {
+//     console.log("API called successfully. Returned data: %o", data);
+//   })
+//   .catch((error) => console.error(error));
 
 
 exports.createsignature = async (req, res) => {
   try {
+const apiInstance = new pd_api.TemplatesApi(configuration);
 
+    // console.log(req.body)
     const header = {
       headers: {
-        "Authorization": `API-Key ${process.env.API_KEY}`,
+        Authorization: `API-Key ${process.env.API_KEY}`,
         "Content-Type": "application/json",
-        "Cookies":"incap_ses_219_2294548=HEpkG5cOpXa+GOIjrQsKAwNcZWMAAAAA5MunrYOyR19B95Fj0Qyt8g==; incap_ses_219_2627658=ZMyTeMt7exeWqtYjrQsKA4hUZWMAAAAAZJw6Yqzy3PdKW2NME2HiiQ==; nlbi_2294548=RuD6Ir5oN3igrXkItR42TwAAAADZdJemuXjATxsIEE5jSlbj; nlbi_2627658=dGv5UEUymW3T6J3Bsee3lAAAAAAKTAxYXO4wSJQ4+QKyoM7P; visid_incap_2294548=BOM3/urTTpysiukXy0WRGbizX2MAAAAAQUIPAAAAAACU7p8vm2uvTmcevHWJNLQa; visid_incap_2627658=5CVhaQyTRDqvD/OGnlM0Da6oX2MAAAAAQUIPAAAAAACnH5mbNvQLIUS+pRqKj95z; AWSALB=+VE4UEgJtNq7vdwDndsWrHiZOFgKpPikPljXZIk6pj7hC9ZdZQ6neQbwNkYAvMrbik/2lT4mMSUp84oWeLFVrh0gOZMvQgj5eaSzOM9CwgtPQca/7I5z1hqsr+qf; AWSALBCORS=+VE4UEgJtNq7vdwDndsWrHiZOFgKpPikPljXZIk6pj7hC9ZdZQ6neQbwNkYAvMrbik/2lT4mMSUp84oWeLFVrh0gOZMvQgj5eaSzOM9CwgtPQca/7I5z1hqsr+qf; pd-session-key=0xkzv61345kmrksujsnqbhq4irxzowrv"
+        // Cookies:
+        //   "visid_incap_2294548=BOM3/urTTpysiukXy0WRGbizX2MAAAAAQUIPAAAAAACU7p8vm2uvTmcevHWJNLQa; visid_incap_2627658=5CVhaQyTRDqvD/OGnlM0Da6oX2MAAAAAQUIPAAAAAACnH5mbNvQLIUS+pRqKj95z; AWSALB=kZi302HxpInUNJk2pYSX/ZROB8rCK7RHmTc3NW6KXFvL9Km/uf493j22977RRPoOGHpTpPagdOy14UAzL6XntPlRqqsF0lf2DYuTo86L6YET7SgSZHjgDhNhiQ7L; AWSALBCORS=kZi302HxpInUNJk2pYSX/ZROB8rCK7RHmTc3NW6KXFvL9Km/uf493j22977RRPoOGHpTpPagdOy14UAzL6XntPlRqqsF0lf2DYuTo86L6YET7SgSZHjgDhNhiQ7L",
       },
     };
-    data.key = key ;
-    const res = await axios.post(
-      
-      "https://api.pandadoc.com/public/v1/documents",
-      data,
-      header
-    );
-    console.log(res)
-    if(res.data.id){
-      return res.status(200).send(res.data)
-    }else{
-      return res.status(200).send({message:"No data"})
-    }
     
-    
+    // const documentCreateRequest = new pd_api.DocumentCreateRequest(req.body);
+    // data.key = key ;
+
+    //   sdk.createDocumentFromPandadocTemplate()
+    // .then(({ data }) => console.log(data))
+    // .catch(err => console.error(err));
+
+    const data = await apiInstance.createDocument(req.body)
+    console.log(data);
+    return data;
+
+    // const res = await axios.post(
+    //   "https://api.pandadoc.com/public/v1/documents",
+    //   req.body,
+    //   header
+    // );
+    // console.log(res);
+    // if (res.data.id) {
+    //   return res.status(200).send(res.data);
+    // } else {
+    //   return res.status(200).send({ message: "No data" });
+    // }
+
     // return res.data;
     // req.body.type = req.params.type.toLowerCase();
     // req.body.owner = req.user._id;
@@ -75,6 +102,7 @@ exports.createsignature = async (req, res) => {
     //   }
     // }
   } catch (err) {
+    console.log(err);
     res.status(400).json({
       success: false,
       message: err.message,
@@ -116,7 +144,6 @@ exports.getsignature = async (req, res) => {
           success: false,
         });
       } else {
-        
         if (title?.length > 0) {
           data = data.filter((item) => {
             return item.title.search(title) != -1;
@@ -138,8 +165,6 @@ exports.getsignature = async (req, res) => {
           success: false,
         });
       } else {
-        
-
         if (title?.length > 0) {
           data = data.filter((item) => {
             return item.title.search(title) != -1;
@@ -159,8 +184,8 @@ exports.getsignature = async (req, res) => {
     });
   }
 };
-exports.updatesignature = async (req,res)=>{
-  try{
+exports.updatesignature = async (req, res) => {
+  try {
     const { id } = req.params;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
@@ -170,7 +195,6 @@ exports.updatesignature = async (req,res)=>{
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
           if (result.owner == req.user._id) {
-           
             signaturedoc.updateOne({ _id: id }, req.body, (err, result) => {
               if (err) {
                 res.status(200).send({ message: err.message, success: false });
@@ -191,15 +215,15 @@ exports.updatesignature = async (req,res)=>{
         }
       });
     }
-  }catch (err) {
+  } catch (err) {
     res.status(400).json({
       success: false,
       message: err.message,
     });
   }
-}
-exports.deletesignature = async (req,res)=>{
-  try{
+};
+exports.deletesignature = async (req, res) => {
+  try {
     const { id } = req.params;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
@@ -209,7 +233,6 @@ exports.deletesignature = async (req,res)=>{
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
           if (result.owner == req.user._id) {
-           
             signaturedoc.deleteOne({ _id: id }, (err, result) => {
               if (err) {
                 res.status(200).send({ message: err.message, success: false });
@@ -230,10 +253,10 @@ exports.deletesignature = async (req,res)=>{
         }
       });
     }
-  }catch (err) {
+  } catch (err) {
     res.status(400).json({
       success: false,
       message: err.message,
     });
   }
-}
+};
