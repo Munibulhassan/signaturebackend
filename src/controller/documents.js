@@ -2,10 +2,6 @@ const documents = require("../models/document");
 
 exports.createdocuments = async (req, res) => {
   try {
-
-    
-
-    
     req.body.owner = req.user._id;    
     const Documents = new documents(req.body);
     Documents.save().then((item) => {
@@ -15,8 +11,7 @@ exports.createdocuments = async (req, res) => {
         data: item,
       });
     });
-  } catch (err) {
-    
+  } catch (err) {    
     res.status(400).send({
       success: false,
       message: err.message,

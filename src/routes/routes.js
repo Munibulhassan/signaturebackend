@@ -13,13 +13,6 @@ const { verifytoken } = require("../middleware/auth");
 app.use("/auth", auth);
 app.use("/signdoc", signdocument);
 app.use("/signature", signature);
-app.get("/getkey",verifytoken,(req,res)=>{
-if(req.user){
-    res.send({"APIkey":process.env.API_KEY})
-}else{
-    res.send({"error":"Token is invalid"})
-}
-})
 app.use("/subscription", subscription);
 app.use("/team", team);
 app.use("/document", documents);
@@ -27,5 +20,12 @@ app.use("/folder", folder);
 app.use((req, res, next) => {
     console.log(req.url)
     next()
+})
+app.get("/getkey",verifytoken,(req,res)=>{
+if(req.user){
+    res.send({"APIkey":process.env.API_KEY})
+}else{
+    res.send({"error":"Token is invalid"})
+}
 })
 module.exports = app;
