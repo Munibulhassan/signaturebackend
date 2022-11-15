@@ -3,6 +3,7 @@ const auth = mongoose.Schema(
   {
     email: { type: String, unique: true, required: true },
     first_name: String,
+    lasst_name: String,
     googleId: String,
     password: String,
     user_type: {

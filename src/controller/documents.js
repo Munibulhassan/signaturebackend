@@ -2,7 +2,7 @@ const documents = require("../models/document");
 
 exports.createdocuments = async (req, res) => {
   try {
-    req.body.owner = req.user._id;    
+    req.body.owner = req.user._id;
     const Documents = new documents(req.body);
     Documents.save().then((item) => {
       res.status(200).send({
@@ -11,7 +11,7 @@ exports.createdocuments = async (req, res) => {
         data: item,
       });
     });
-  } catch (err) {    
+  } catch (err) {
     res.status(400).send({
       success: false,
       message: err.message,
@@ -37,8 +37,6 @@ exports.getdocuments = async (req, res) => {
         .status(200)
         .send({ message: "There is no documents available", success: false });
     } else {
-      
-
       // var filterdata = [];
       // if (req.body.signer) {
       //   data.map((item) => {
@@ -71,24 +69,23 @@ exports.getdocuments = async (req, res) => {
   }
 };
 
-exports.fileupload = async (req,res)=>{
-  try{
-    
+exports.fileupload = async (req, res) => {
+  try {
     res.status(200).json({
       success: true,
-      file: req.file.filename,      
+      file: req.file.filename,
     });
-  }catch(err){
+  } catch (err) {
     res.status(400).json({
       success: false,
       message: err.message,
     });
   }
-}
+};
 exports.updatedocuments = async (req, res) => {
   try {
     const { id } = req.params;
-
+    console.log(id, req.body);
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
@@ -96,27 +93,37 @@ exports.updatedocuments = async (req, res) => {
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-          if (result.createdby == req.user._id) {
+          
+          if (result.owner == req.user._id) {
             if (req.body.status) {
               req.body.status = req.body.status.toUpperCase();
             }
-            if(req.file){
-              req.file.document = req.file.filename
+            if (req.file) {
+              req.file.document = req.file.filename;
             }
             documents.updateOne({ _id: id }, req.body, (err, result) => {
               if (err) {
                 res.status(200).send({ message: err.message, success: false });
               } else {
-                res.status(200).send({
-                  message: "Data updated Successfully",
-                  success: true,
-                  data: result,
-                });
+                if(req.body.folder){
+                  res.status(200).send({
+                    message: "Document move to folder Successfully",
+                    success: true,
+                    data: result,
+                  });
+                }else{
+
+                  res.status(200).send({
+                    message: "Data updated Successfully",
+                    success: true,
+                    data: result,
+                  });
+                }
               }
             });
           } else {
             res.status(200).send({
-              message: "You have no permission for delete this document",
+              message: "You have no permission for update this document",
               success: false,
             });
           }
@@ -138,7 +145,7 @@ exports.deletedocuments = async (req, res) => {
     } else {
       documents.findOne({ _id: id }, async (err, result) => {
         if (result) {
-          if (result.createdby == req.user._id) {
+          if (result.owner == req.user._id) {
             documents.deleteOne({ _id: id }, (err, val) => {
               if (!val) {
                 res.status(200).send({ message: err.message, success: false });
