@@ -18,7 +18,7 @@ const configuration = pd_api.createConfiguration({
 
 exports.createsignature = async (req, res) => {
   try {
-    req.body.type = req.params.type.toLowerCase();
+    req.body.type = req.body.type.toLowerCase();
     req.body.owner = req.user._id;
     const { title } = req.body;
     if (!title) {
@@ -101,7 +101,7 @@ exports.getsignature = async (req, res) => {
 
       if (data.length == 0) {
         res.status(200).send({
-          message: "There is no any signature available",
+          message: "There is Sign document available",
           success: false,
         });
       } else {
