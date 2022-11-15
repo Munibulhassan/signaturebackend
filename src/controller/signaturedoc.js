@@ -44,13 +44,13 @@ exports.createsignature = async (req, res) => {
         if (req.body.viewer) {
           req.body.viewer = JSON.parse(req.body.Viewer);
         }
-        req.files.map((item, index) => {
-          const arr = [];
-          arr.push(item.filename);
-          if (index == req.files.length - 1) {
-            req.body.file = arr;
-          }
-        });
+        // req.files?.map((item, index) => {
+        //   const arr = [];
+        //   arr.push(item.filename);
+        //   if (index == req.files.length - 1) {
+        //     req.body.file = arr;
+        //   }
+        // });
 
         const Signature = new signaturedoc(req.body);
         Signature.save().then((item) => {
@@ -72,7 +72,7 @@ exports.createsignature = async (req, res) => {
 };
 exports.fileupload = async (req, res) => {
   try {
-    req.files.map((item, index) => {
+    req.files?.map((item, index) => {
       const arr = [];
       arr.push(item.filename);
       if (index == req.files.length - 1) {
