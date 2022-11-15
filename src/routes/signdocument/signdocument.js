@@ -32,7 +32,7 @@ var upload = multer({
 });
 
 const router = () => {
-  Router.post("/", signaturedoc.createsignature);
+  Router.post("/",verifytoken, signaturedoc.createsignature);
   Router.post("/", verifytoken, upload.array("file"), signaturedoc.fileupload);
   Router.get("/", signaturedoc.getsignature);
   Router.patch("/:id", verifytoken, signaturedoc.updatesignature);
